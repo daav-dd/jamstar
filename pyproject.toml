@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jamstar"
+version = "1.0.0"
+authors = [{ name = "daav-dd" }]
+maintainers = [{ name = "daav-dd" }]
+license = "MIT"
+description = "GTA5 Network Control Utility"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "keyboard",
+    "psutil",
+    "pywin32",
+    "loguru",
+]
+
+[project.urls]
+Homepage = "https://github.com/daav-dd/jamstar"
+Issues = "https://github.com/daav-dd/jamstar/issues"
+
+[project.scripts]
+jamstar = "jamstar.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jamstar"]
