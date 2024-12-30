@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jamstar"
-version = "1.0.0"
+version = "1.1.0"
 authors = [{ name = "daav-dd" }]
 maintainers = [{ name = "daav-dd" }]
 license = "MIT"
@@ -12,9 +12,10 @@ description = "GTA5 Network Control Utility"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
+    "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
-    "Programming Language :: Python :: 3",
+    "Topic :: System :: Networking :: Firewalls",
 ]
 dependencies = [
     "keyboard",
@@ -31,4 +32,27 @@ Issues = "https://github.com/daav-dd/jamstar/issues"
 jamstar = "jamstar.__main__:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/jamstar"]
+packages = ["jamstar"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 120
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+
+[tool.ruff.lint.isort]
+force-single-line = false
+lines-after-imports = 2
+lines-between-types = 1

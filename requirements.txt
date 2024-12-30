@@ -1,0 +1,4 @@
+keyboard
+psutil
+pywin32
+loguru

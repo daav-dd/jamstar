@@ -11,7 +11,7 @@ import pythoncom
 import win32com.client
 from loguru import logger
 
-from .utils import check_admin_rights
+from .permissions import check_admin_rights
 
 
 class FirewallController:
@@ -36,16 +36,18 @@ class FirewallController:
     def create_block_rule(
         self,
         rule_name: str,
-        application_path: str,
         description: str,
+        # application_path: str = "",
+        blocked_ip: str = "192.81.241.171",
     ):
         rule = win32com.client.Dispatch("HNetCfg.FwRule")
         rule.Name = rule_name
         rule.Description = description
-        rule.ApplicationName = application_path
+        # rule.ApplicationName = application_path
         rule.Action = 0  # block
         rule.Direction = 2  # outbound
         rule.Enabled = True
+        rule.RemoteAddresses = blocked_ip
         self.fw_policy.Rules.Add(rule)
 
     def remove_rule(self, rule_name: str):
@@ -68,6 +70,7 @@ class NotificationWindow:
         self.window = tk.Tk()
         self.window.overrideredirect(True)
         self.window.geometry("+0+0")
+
         self.window.wm_attributes("-topmost", True)
 
         self.label = tk.Label(self.window, text=message, font=("Arial", 12), fg="black")
@@ -124,9 +127,7 @@ class NetworkController:
                 logger.info("Firewall rule already exists")
                 return
 
-            fw.create_block_rule(
-                self.RULE_NAME, process.exe(), "Block network access for GTA5"
-            )
+            fw.create_block_rule(rule_name=self.RULE_NAME, description="Block network access for GTA5")
 
         self.is_blocked = True
         self.notification.show("Network blocked successfully")
@@ -173,9 +174,7 @@ class NetworkController:
     def run_interactive(self):
         logger.info("Starting interactive mode")
         self.notification.show("Ctrl+Shift+\nF1 to block\nF2 to unblock\nQ to exit")
-        logger.info(
-            "Global hotkeys: Ctrl+Shift+[F1] to block, [F2] to unblock, [Q] to exit"
-        )
+        logger.info("Global hotkeys: Ctrl+Shift+<F1> to block, <F2> to unblock, <Q> to exit")
 
         self.hotkey_thread = threading.Thread(target=self.setup_hotkeys, daemon=True)
         self.hotkey_thread.start()
@@ -212,7 +211,7 @@ def parse_arguments() -> argparse.Namespace:
 
 def main():
     args = parse_arguments()
-    check_admin_rights()
+    check_admin_rights(force_installed=True)
 
     controller = NetworkController()
 

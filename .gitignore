@@ -1,5 +1,4 @@
-old/
-requirements.txt
+.stuff/
 
 # Ruff formatter
 .ruff_cache/
