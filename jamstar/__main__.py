@@ -97,7 +97,7 @@ class NotificationWindow:
 
 
 class NetworkController:
-    PROCESS_NAME = "GTA5.exe"
+    PROCS_NAMES = "GTA5.exe", "GTA5_Enhanced.exe"
     RULE_NAME = "Block_GTA5_Network"
 
     def __init__(self):
@@ -108,7 +108,7 @@ class NetworkController:
     def _find_process(self) -> Optional[psutil.Process]:
         for proc in psutil.process_iter(["name", "exe"]):
             try:
-                if proc.info["name"].lower() != self.PROCESS_NAME.lower():
+                if all(proc.info["name"].lower() != name.lower() for name in self.PROCS_NAMES):
                     continue
                 return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
