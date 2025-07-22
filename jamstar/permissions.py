@@ -1,8 +1,8 @@
 import ctypes
 import sys
+
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Optional, Tuple
 
 from loguru import logger
 
@@ -12,11 +12,11 @@ from .models import ExecutionMode
 
 class EnvironmentManager:
     @staticmethod
-    def get_venv_path() -> Optional[Path]:
+    def get_venv_path() -> Path | None:
         return Path(sys.prefix).resolve() if sys.prefix != sys.base_prefix else None
 
     @staticmethod
-    def get_python_executable(venv_path: Optional[Path] = None) -> Path:
+    def get_python_executable(venv_path: Path | None = None) -> Path:
         if venv_path:
             return venv_path / "Scripts" / "python.exe"
         return Path(sys.executable).resolve()
@@ -30,7 +30,7 @@ class EnvironmentManager:
             return False
 
     @staticmethod
-    def get_execution_mode(package_name: str, force_installed: bool = False) -> Tuple[ExecutionMode, Optional[Path]]:
+    def get_execution_mode(package_name: str, force_installed: bool = False) -> tuple[ExecutionMode, Path | None]:
         venv_path = EnvironmentManager.get_venv_path()
         is_installed = EnvironmentManager.is_package_installed(package_name)
 
@@ -46,7 +46,7 @@ class AdminRightsManager:
     @staticmethod
     def is_admin() -> bool:
         try:
-            return ctypes.windll.shell32.IsUserAnAdmin() != 0
+            return bool(ctypes.windll.shell32.IsUserAnAdmin())
         except Exception as e:
             logger.warning(f"Failed to check admin rights: {e!r}")
             return False
@@ -58,7 +58,7 @@ class AdminRightsManager:
         return response.strip().lower() == "y"
 
     @classmethod
-    def restart_with_admin(cls, package_name: str, force_installed: bool = False):
+    def restart_with_admin(cls, package_name: str, force_installed: bool = False) -> None:
         """
         Args:
             package_name: The name of the package
@@ -83,10 +83,10 @@ class AdminRightsManager:
 
             sys.exit(0)
         except Exception as e:
-            raise AdminRightsError(f"Failed to restart with admin rights: {e!r}")
+            raise AdminRightsError(f"Failed to restart with admin rights: {e!r}") from None
 
 
-def check_admin_rights(package_name: str = "jamstar", force_installed: bool = False):
+def check_admin_rights(package_name: str = "jamstar", force_installed: bool = False) -> None:
     if AdminRightsManager.is_admin():
         return
 

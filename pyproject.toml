@@ -1,16 +1,20 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "jamstar"
+module-root = ""
 
 [project]
 name = "jamstar"
-version = "1.1.1"
+version = "1.2.0"
 authors = [{ name = "daav-dd" }]
 maintainers = [{ name = "daav-dd" }]
 license = "MIT"
 description = "GTA5 Network Control Utility"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -18,24 +22,52 @@ classifiers = [
     "Topic :: System :: Networking :: Firewalls",
 ]
 dependencies = [
-    "keyboard",
-    "psutil",
-    "pywin32",
-    "loguru",
+    "keyboard>=0.13.5",
+    "loguru>=0.7.3",
+    "psutil>=7.0.0",
+    "pywin32>=311",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.17.0",
+    "ruff>=0.12.4",
+]
+types = [
+    "types-keyboard>=0.13.2.20240310",
+    "types-psutil>=7.0.0.20250601",
+    "types-pywin32>=310.0.0.20250516",
 ]
 
 [project.urls]
 Homepage = "https://github.com/daav-dd/jamstar"
 Issues = "https://github.com/daav-dd/jamstar/issues"
 
-[project.scripts]
-jamstar = "jamstar.__main__:main"
-
-[tool.hatch.build.targets.wheel]
-packages = ["jamstar"]
-
 [tool.ruff]
 line-length = 120
+
+# https://docs.astral.sh/ruff/linter/#rule-selection
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+
+[tool.mypy]
+follow_imports = "silent"
+strict = true
+disallow_untyped_defs = false
+untyped_calls_exclude = "jamstar"
 
 [tool.ruff.format]
 quote-style = "double"
@@ -44,6 +76,7 @@ skip-magic-trailing-comma = false
 
 [tool.ruff.lint.pycodestyle]
 max-doc-length = 120
+max-line-length = 120
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
