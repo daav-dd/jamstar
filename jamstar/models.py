@@ -6,5 +6,5 @@ class ExecutionMode(Enum):
     INSTALLED_PACKAGE = auto()
 
 
-class LogLevels(StrEnum):
+class LogLevel(StrEnum):
     SILENT_EXC = "SILENT_EXC"
