@@ -4,10 +4,14 @@ import sys
 from importlib.util import find_spec
 from pathlib import Path
 
+import rich
+
 from loguru import logger
+from rich.prompt import Confirm
 
 from .exceptions import AdminRightsError
 from .models import ExecutionMode
+from .utils import catch
 
 
 class EnvironmentManager:
@@ -22,12 +26,9 @@ class EnvironmentManager:
         return Path(sys.executable).resolve()
 
     @staticmethod
+    @catch(default=False, message="Failed to check if {package_name} is installed: {exception}")
     def is_package_installed(package_name: str) -> bool:
-        try:
-            return find_spec(package_name) is not None
-        except Exception as e:
-            logger.warning(f"Failed to check if {package_name} is installed: {e!r}")
-            return False
+        return find_spec(package_name) is not None
 
     @staticmethod
     def get_execution_mode(package_name: str, force_installed: bool = False) -> tuple[ExecutionMode, Path | None]:
@@ -44,18 +45,14 @@ class EnvironmentManager:
 
 class AdminRightsManager:
     @staticmethod
+    @catch(default=False, message="Failed to check admin rights: {exception}")
     def is_admin() -> bool:
-        try:
-            return bool(ctypes.windll.shell32.IsUserAnAdmin())
-        except Exception as e:
-            logger.warning(f"Failed to check admin rights: {e!r}")
-            return False
+        return bool(ctypes.windll.shell32.IsUserAnAdmin())
 
     @staticmethod
     def request_elevation() -> bool:
-        print("This application needs to run with elevated rights.")
-        response = input("Request for elevated rights? [y/(n)]: ")
-        return response.strip().lower() == "y"
+        rich.print("[bold red]This application requires elevated rights to run.[/bold red]")
+        return Confirm.ask("Request for elevated rights?", default=False)
 
     @classmethod
     def restart_with_admin(cls, package_name: str, force_installed: bool = False) -> None:
@@ -69,13 +66,14 @@ class AdminRightsManager:
         execution_mode, venv_path = EnvironmentManager.get_execution_mode(package_name, force_installed)
         executable = EnvironmentManager.get_python_executable(venv_path)
 
-        if execution_mode == ExecutionMode.VENV_SOURCE:
-            source_path = Path(__file__).resolve().parent.name
-            cmd = f"-m {source_path} {args}"
-        elif execution_mode == ExecutionMode.INSTALLED_PACKAGE:
-            cmd = f"-m {package_name} {args}"
-        else:
-            raise AdminRightsError(f"Unsupported execution mode: {execution_mode}")
+        match execution_mode:
+            case ExecutionMode.VENV_SOURCE:
+                source_path = Path(__file__).resolve().parent.name
+                cmd = f"-m {source_path} {args}"
+            case ExecutionMode.INSTALLED_PACKAGE:
+                cmd = f"-m {package_name} {args}"
+            case _:
+                raise AdminRightsError(f"Unsupported execution mode: {execution_mode}")
 
         try:
             logger.info(f"Executing with elevated rights: {executable} {cmd}")

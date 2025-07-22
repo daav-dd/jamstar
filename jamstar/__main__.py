@@ -31,8 +31,9 @@ class FirewallController:
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: types.TracebackType | None,
-    ) -> None:
+    ) -> bool | None:
         pythoncom.CoUninitialize()
+        return None
 
     def rule_exists(self, rule_name: str) -> bool:
         try:
