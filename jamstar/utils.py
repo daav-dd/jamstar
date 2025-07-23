@@ -14,6 +14,7 @@ type R = dict[str, Any]
 def func_params[T, **P](func: Callable[P, T]) -> Callable[P, R]:
     sig = signature(func)
 
+    @wraps(func_params)
     def inner(*args: P.args, **kwargs: P.kwargs) -> R:
         bound_args = sig.bind(*args, **kwargs)
         bound_args.apply_defaults()

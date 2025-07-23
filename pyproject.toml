@@ -8,7 +8,7 @@ module-root = ""
 
 [project]
 name = "jamstar"
-version = "1.3.4"
+version = "1.3.5"
 authors = [{ name = "daav-dd" }]
 maintainers = [{ name = "daav-dd" }]
 license = "MIT"
